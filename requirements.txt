@@ -2,7 +2,7 @@ Langchain
 Langchain_community
 langchain_groq
 langchain_chroma
-chromadb
+faiss-cpu
 arxiv
 pymupdf
 pypdf
@@ -19,3 +19,4 @@ wolframalpha
 langchain_experimental
 sentence-transformers
 sqlite3
+
