@@ -18,3 +18,4 @@ duckduckgo-search
 wolframalpha
 langchain_experimental
 sentence-transformers
+sqlite3
