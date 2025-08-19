@@ -43,10 +43,11 @@ def run_history_chatbot():
 
     render_messages()
     user_input = st.chat_input("Say something...")
-    if user_input.strip():
+    if user_input:
         ai_msg = chain.invoke(user_input)
         reply = getattr(ai_msg, "content", str(ai_msg))
         add_message("user", user_input)
         add_message("ai", reply)
         memory.save_context({"input": user_input}, {"output": reply})
         render_messages()
+
