@@ -2,7 +2,7 @@ import streamlit as st
 from langchain_groq import ChatGroq
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_ollama import OllamaEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.document_loaders import PyPDFLoader
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
@@ -47,7 +47,7 @@ def run_pdf_qa_bot():
         return text_splitter.split_documents(documents)
 
     def vec_DB(docs):
-        embeddings = OllamaEmbeddings(model='nomic-embed-text')
+        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
         vector_DB = FAISS.from_documents(embedding=embeddings, documents=docs)
         retriever = vector_DB.as_retriever()
         return retriever
@@ -85,4 +85,5 @@ def run_pdf_qa_bot():
         query = st.text_input("Enter your question about PDF(s):")
         if query:
             retrieval_chain(query, retriever, llm)
+
 
