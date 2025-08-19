@@ -16,4 +16,5 @@ langchain_ollama
 transformers
 duckduckgo-search
 wolframalpha
+langchain_experimental
 sentence-transformers
