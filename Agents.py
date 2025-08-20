@@ -18,11 +18,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def run_academic_assistant():
-    st.title("📚 Academic Assistant")
+    st.title("📚 Multi Agents Chatbot")
     st.write("Ask research, math, or general queries!")
 
     api_key = os.getenv("GROQ_API_KEY")
-    wolfram_api = os.getenv("WOLFRAM_API_KEY")
+
 
     llm = ChatGroq(model="llama3-8b-8192", api_key=api_key)
 
@@ -34,10 +34,9 @@ def run_academic_assistant():
         wiki = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper(top_k_results=2, doc_content_chars_max=500))
         pubmed = PubmedQueryRun()
         search = DuckDuckGoSearchResults(name="search")
-        wolfram_wrapper = WolframAlphaAPIWrapper(wolfram_alpha_appid=wolfram_api)
-        wolfram = WolframAlphaQueryRun(api_wrapper=wolfram_wrapper)
+        
 
-        tools = [search, arxiv, wiki, pubmed, wolfram]
+        tools = [search, arxiv, wiki, pubmed]
 
         if "messages" not in st.session_state:
             st.session_state.messages = [
@@ -65,3 +64,4 @@ def run_academic_assistant():
             response = search_agent.run(query, callbacks=[st_cb])
             st.session_state.messages.append({"role": "assistant", "content": response})
             st.write(response)
+
