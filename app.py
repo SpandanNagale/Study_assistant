@@ -27,7 +27,7 @@ st.sidebar.markdown("""
 
 # --- Lazy loading of bots ---
 if bot_choice == "Academic Assistant":
-    from academic_assistant import run_academic_assistant
+    from Agents import run_academic_assistant
     run_academic_assistant()
 
 elif bot_choice == "PDF QA Bot":
@@ -53,3 +53,4 @@ elif bot_choice == "PDF/Text Summarizer":
 elif bot_choice == "History-Aware Chatbot":
     from history_chatbot import run_history_chatbot
     run_history_chatbot()
+
