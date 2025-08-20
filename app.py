@@ -7,7 +7,7 @@ st.caption("Switch between different AI tools with context-aware chat, summariza
 
 # --- Sidebar Navigation ---
 bot_choice = st.sidebar.radio("Select an AI tool:", [
-    "Academic Assistant",
+    "Multi Agents Chatbot",
     "PDF QA Bot",
     "Code Generator",
     "Debugger Chatbot",
@@ -53,4 +53,5 @@ elif bot_choice == "PDF/Text Summarizer":
 elif bot_choice == "History-Aware Chatbot":
     from history_chatbot import run_history_chatbot
     run_history_chatbot()
+
 
