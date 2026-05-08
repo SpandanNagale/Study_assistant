@@ -1,22 +1,57 @@
-Langchain
-Langchain_community
-langchain_groq
-langchain_chroma
-faiss-cpu
-arxiv
-pymupdf
-pypdf
-pytube
-youtube_transcript_api
-streamlit
-validators
-wikipedia
-ipykernel
-langchain_ollama
-transformers
-duckduckgo-search
-wolframalpha
-langchain_experimental
-sentence-transformers
+# =============================================================================
+# Study Assistant — Requirements
+# =============================================================================
+# Generated from the working virtual environment (myenv)
+# All versions pinned to match currently installed packages
 
+# --- Core LangChain Ecosystem ---
+langchain==1.2.10
+langchain-core==1.2.16
+langchain-classic==1.0.1
+langchain-community==0.4.1
+langchain-text-splitters==1.1.1
 
+# --- LLM Providers ---
+langchain-groq==1.1.2
+langchain-google-genai==4.2.1
+langchain-ollama==1.0.1
+
+# --- Vector Store & Embeddings ---
+langchain-chroma==1.1.0
+faiss-cpu==1.13.2
+sentence-transformers==5.2.3
+
+# --- Document Processing ---
+pymupdf==1.27.1
+pypdf==6.7.4
+
+# --- Search & Knowledge Tools ---
+arxiv==2.4.0
+wikipedia==1.4.0
+duckduckgo-search==8.1.1
+ddgs
+
+# --- Web UI ---
+streamlit==1.54.0
+
+# --- Utilities ---
+validators==0.35.0
+python-dotenv==1.2.1
+xmltodict==1.0.4
+
+# --- Required Transitive Dependencies ---
+# (These are pulled in by the above packages but listing them
+#  ensures compatibility if installed independently)
+groq==0.37.1
+google-genai==1.65.0
+google-auth==2.48.0
+httpx==0.28.1
+pydantic==2.12.5
+tenacity==9.1.4
+beautifulsoup4==4.14.3
+requests==2.32.5
+numpy==2.4.2
+torch==2.10.0
+transformers==5.2.0
+tokenizers==0.22.2
+huggingface-hub==1.5.0
