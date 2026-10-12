@@ -7,7 +7,7 @@ Supports large PDFs via map-reduce chain.
 
 import streamlit as st
 from langchain_core.prompts import PromptTemplate
-from langchain.chains.summarize import load_summarize_chain
+from langchain_classic.chains.summarize import load_summarize_chain
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document

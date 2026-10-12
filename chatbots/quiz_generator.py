@@ -17,6 +17,8 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'providers'))
 from llm_provider import get_llm
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+from utils import srs
 
 
 def parse_quiz(raw_text):
@@ -30,10 +32,17 @@ def parse_quiz(raw_text):
             parsed = json.loads(json_match.group())
             for item in parsed:
                 if isinstance(item, dict) and all(k in item for k in ["question", "options", "correct"]):
+                    # Models sometimes return the index as a string ("2")
+                    try:
+                        correct = int(item["correct"])
+                    except (TypeError, ValueError):
+                        continue
+                    if not isinstance(item["options"], list) or not 0 <= correct < len(item["options"]):
+                        continue
                     questions.append({
                         "question": item["question"],
                         "options": item["options"],
-                        "correct": item["correct"],
+                        "correct": correct,
                         "explanation": item.get("explanation", ""),
                     })
             if questions:
@@ -48,8 +57,6 @@ def run_quiz_generator():
     st.title("❓ Quiz Generator")
     st.markdown("Auto-generate MCQ quizzes from any topic or PDF — test your knowledge!")
 
-    llm = get_llm()
-
     # Session state
     if "quiz_questions" not in st.session_state:
         st.session_state.quiz_questions = []
@@ -57,6 +64,7 @@ def run_quiz_generator():
         st.session_state.quiz_answers = {}
     if "quiz_submitted" not in st.session_state:
         st.session_state.quiz_submitted = False
+    st.session_state.setdefault("quiz_topic", "")
 
     # Input tabs
     tab_topic, tab_pdf = st.tabs(["📝 From Topic", "📄 From PDF"])
@@ -74,7 +82,6 @@ def run_quiz_generator():
         ("human", "Generate a quiz about: {content}"),
     ])
 
-    chain = prompt_template | llm | StrOutputParser()
 
     with tab_topic:
         topic = st.text_input("Enter a topic:", placeholder="e.g., Machine Learning Basics, World War II, Organic Chemistry...")
@@ -87,12 +94,14 @@ def run_quiz_generator():
             with st.spinner("❓ Generating quiz..."):
                 try:
                     content = f"{topic} (Difficulty: {difficulty})"
+                    chain = prompt_template | get_llm() | StrOutputParser()
                     response = chain.invoke({"content": content, "num_questions": str(num_q)})
                     questions = parse_quiz(response)
                     if questions:
                         st.session_state.quiz_questions = questions
                         st.session_state.quiz_answers = {}
                         st.session_state.quiz_submitted = False
+                        st.session_state.quiz_topic = topic
                         st.success(f"✅ Generated {len(questions)} questions!")
                         st.rerun()
                     else:
@@ -122,12 +131,14 @@ def run_quiz_generator():
                         if tmp_path and os.path.exists(tmp_path):
                             os.unlink(tmp_path)
 
+                    chain = prompt_template | get_llm() | StrOutputParser()
                     response = chain.invoke({"content": content[:8000], "num_questions": str(num_q_pdf)})
                     questions = parse_quiz(response)
                     if questions:
                         st.session_state.quiz_questions = questions
                         st.session_state.quiz_answers = {}
                         st.session_state.quiz_submitted = False
+                        st.session_state.quiz_topic = os.path.splitext(uploaded_file.name)[0]
                         st.success(f"✅ Generated {len(questions)} questions from PDF!")
                         st.rerun()
                     else:
@@ -164,6 +175,11 @@ def run_quiz_generator():
                     st.warning(f"Please answer all {total} questions before submitting.")
                 else:
                     st.session_state.quiz_submitted = True
+                    score = sum(
+                        st.session_state.quiz_answers.get(i) == q["correct"]
+                        for i, q in enumerate(questions)
+                    )
+                    srs.record_quiz(st.session_state.quiz_topic, score, total)
                     st.rerun()
 
         else:
@@ -215,6 +231,28 @@ def run_quiz_generator():
                 <div style="font-size: 1.2rem; color: {color};">{msg}</div>
             </div>
             """, unsafe_allow_html=True)
+
+            # Turn mistakes into spaced-repetition flashcards
+            missed = [
+                q for i, q in enumerate(questions)
+                if st.session_state.quiz_answers.get(i, -1) != q["correct"]
+            ]
+            if missed:
+                if st.button(
+                    f"🧠 Add {len(missed)} missed question(s) to flashcards",
+                    use_container_width=True,
+                    type="primary",
+                ):
+                    deck = f"Quiz mistakes: {st.session_state.quiz_topic or 'General'}"
+                    added = srs.add_cards(deck, [
+                        {
+                            "front": q["question"],
+                            "back": q["options"][q["correct"]]
+                                    + (f"\n\n{q['explanation']}" if q.get("explanation") else ""),
+                        }
+                        for q in missed
+                    ])
+                    st.success(f"✅ Added {added} card(s) to **{deck}**. Review them in 🧠 Flashcard Generator → 🔁 Review.")
 
             if st.button("🔄 Retake Quiz", use_container_width=True):
                 st.session_state.quiz_answers = {}

@@ -1,7 +1,7 @@
 # 📚 Study Assistant — AI-Powered Learning Suite
 
 A comprehensive AI study assistant built with **LangChain** and **Streamlit**.  
-Supports **Google Gemini** (free), **Groq** (free tier), and **Ollama** (local LLM).
+Supports **Google Gemini** (free), **Groq** (free tier), **OpenRouter**, **Ollama Cloud**, and **Ollama** (local LLM) — with automatic fallback between providers.
 
 > 🎓 Summarize documents, ask questions about PDFs, generate code, debug errors, create flashcards, take quizzes, and more — all powered by AI.
 
@@ -18,8 +18,9 @@ Supports **Google Gemini** (free), **Groq** (free tier), and **Ollama** (local L
 | 📖 **Study Assistant** | AI tutor that breaks down concepts with examples |
 | 📝 **PDF/Text Summarizer** | Summarize PDFs or text with download support |
 | 💬 **History-Aware Chatbot** | General AI assistant with full conversation memory |
-| 🧠 **Flashcard Generator** | Create spaced-repetition flashcards from topics or PDFs |
-| ❓ **Quiz Generator** | Auto-generate MCQ quizzes with scoring and explanations |
+| 🧠 **Flashcard Generator** | Create flashcards from topics or PDFs, save them to decks, and review with real spaced repetition (SM-2). Export decks to CSV for Anki/Quizlet |
+| ❓ **Quiz Generator** | Auto-generate MCQ quizzes with scoring and explanations; turn missed questions into flashcards in one click |
+| 📈 **Progress Dashboard** | Cards due today, reviews done, day streak and recent quiz scores — saved between sessions |
 
 ---
 
@@ -86,6 +87,24 @@ You can choose your LLM provider directly in the app sidebar:
 4. Select "Ollama (Local LLM)" in the app sidebar
 5. No API key needed!
 
+### Option 4: OpenRouter (hundreds of models, one key)
+1. Go to [openrouter.ai/keys](https://openrouter.ai/keys) and create a key
+2. Paste it in the sidebar under **API Keys**
+3. Pick a model — ids ending in `:free` cost nothing — or choose **✏️ Custom model...** to type any id
+
+### Option 5: Ollama Cloud (large hosted models)
+1. Sign in at [ollama.com](https://ollama.com) and create a key at [ollama.com/settings/keys](https://ollama.com/settings/keys)
+2. Paste it in the sidebar under **API Keys**
+3. Select **Ollama Cloud** and a model such as `gpt-oss:120b`
+
+### 🛟 Auto-fallback
+Add keys for more than one provider and keep **Auto-fallback** switched on. If the primary
+provider fails (rate limit, outage, retired model), the request is retried on the next
+provider that has a key, in the order Gemini → Groq → OpenRouter → Ollama Cloud.
+
+Keys can come from the sidebar, a `.env` file (see `.env.example`), or Streamlit secrets:
+`GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY`, `OLLAMA_API_KEY`.
+
 ---
 
 ## 📁 Project Structure
@@ -93,7 +112,7 @@ You can choose your LLM provider directly in the app sidebar:
 ```
 Study_assistant/
 ├── app.py                  # Main entry point with navigation and UI
-├── llm_provider.py         # Centralized LLM provider (Gemini/Groq/Ollama)
+├── llm_provider.py         # Centralized LLM provider (Gemini/Groq/OpenRouter/Ollama) + fallback
 ├── agents.py               # Multi-agent research chatbot
 ├── pdf_qa_bot.py           # PDF question-answering with RAG
 ├── code_generator.py       # AI code generation
@@ -121,6 +140,10 @@ Study_assistant/
 3. Connect your GitHub repo
 4. Set your API keys in Streamlit Cloud's "Secrets" section
 5. Deploy!
+
+> ℹ️ Flashcard decks and quiz history are stored in a local SQLite file (`data/study.db`,
+> override with `STUDY_DB_PATH`). Streamlit Cloud's disk is temporary, so progress there
+> resets when the app restarts — export decks to CSV to keep them.
 
 ### Docker
 ```dockerfile

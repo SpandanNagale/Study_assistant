@@ -121,7 +121,7 @@ render_llm_sidebar()
 with st.sidebar:
     st.markdown("---")
     st.caption("Built with ❤️ for students")
-    st.caption("v2.0 — Gemini · Groq · Ollama")
+    st.caption("v2.1 — Gemini · Groq · OpenRouter · Ollama")
 
 
 # ---------------------------------------------------------------------------
@@ -134,10 +134,37 @@ if bot_choice == "🏠 Home":
         unsafe_allow_html=True,
     )
 
+    # --- Study progress dashboard (persistent, from utils/srs.py) ---
+    from utils import srs
+
+    st.markdown("### 📈 Your Progress")
+    stats = srs.study_stats()
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("🔁 Cards due today", stats["due_today"])
+    m2.metric("✅ Reviewed today", stats["reviewed_today"])
+    m3.metric("🃏 Total cards", stats["total_cards"])
+    m4.metric("🔥 Day streak", stats["streak"])
+
+    if stats["due_today"]:
+        def _go_review():
+            # Runs before widgets are rebuilt, so the sidebar radio can be updated too
+            st.session_state.nav_target = "🧠 Flashcard Generator"
+            st.session_state.sidebar_nav = "🧠 Flashcard Generator"
+
+        st.button(f"🔁 Review {stats['due_today']} due card(s) now", type="primary", on_click=_go_review)
+
+    quizzes = srs.recent_quizzes(limit=5)
+    if quizzes:
+        with st.expander("📝 Recent quiz scores"):
+            for q in quizzes:
+                pct = 100 * q["score"] / q["total"] if q["total"] else 0
+                st.markdown(f"- **{q['topic']}** — {q['score']}/{q['total']} ({pct:.0f}%) · {q['taken_at'][:10]}")
+
+    st.markdown("---")
     st.markdown("### 🚀 Getting Started")
     st.markdown("""
     1. **Open the sidebar** (click the `>` arrow at top-left) to configure your LLM provider
-    2. **Enter your API key** — Gemini is free & recommended, or use Ollama for local AI
+    2. **Enter your API keys** — Gemini, Groq, OpenRouter or Ollama Cloud (add several for automatic fallback), or use local Ollama
     3. **Use the sidebar** to navigate to any tool!
     """)
 
@@ -146,7 +173,7 @@ if bot_choice == "🏠 Home":
 
     st.markdown("---")
     st.markdown("### 🔑 API Key Options")
-    col_a, col_b, col_c = st.columns(3)
+    col_a, col_b, col_c, col_d = st.columns(4)
     with col_a:
         st.markdown("""
         **🌐 Google Gemini (Recommended)**
@@ -163,10 +190,17 @@ if bot_choice == "🏠 Home":
         """)
     with col_c:
         st.markdown("""
-        **🖥️ Ollama (Local)**
-        - 100% free & private
-        - Runs on your machine
-        - [Download Ollama →](https://ollama.com)
+        **🔀 OpenRouter**
+        - One key, hundreds of models
+        - Free models available
+        - [Get API Key →](https://openrouter.ai/keys)
+        """)
+    with col_d:
+        st.markdown("""
+        **🦙 Ollama (Cloud or Local)**
+        - Cloud: big models, API key
+        - Local: 100% free & private
+        - [Get Cloud Key →](https://ollama.com/settings/keys)
         """)
 
 

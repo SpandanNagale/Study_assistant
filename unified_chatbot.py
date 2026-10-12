@@ -224,8 +224,8 @@ def handle_study_assistant(query: str, history: list) -> str:
 
 def handle_pdf_qa(query: str, history: list) -> str:
     """Answer questions about uploaded PDFs."""
-    from langchain.chains import create_history_aware_retriever, create_retrieval_chain
-    from langchain.chains.combine_documents import create_stuff_documents_chain
+    from langchain_classic.chains import create_history_aware_retriever, create_retrieval_chain
+    from langchain_classic.chains.combine_documents import create_stuff_documents_chain
     from langchain_community.chat_message_histories import ChatMessageHistory
     from langchain_core.chat_history import BaseChatMessageHistory
     from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -294,8 +294,8 @@ def handle_academic_research(query: str, history: list) -> str:
         DuckDuckGoSearchResults,
         PubmedQueryRun,
     )
-    from langchain.agents import initialize_agent, AgentType, Tool
-    from langchain.agents.agent import AgentExecutor
+    from langchain_classic.agents import initialize_agent, AgentType, Tool
+    from langchain_classic.agents.agent import AgentExecutor
 
     llm = get_llm()
 
@@ -328,7 +328,7 @@ def handle_academic_research(query: str, history: list) -> str:
         ),
     ]
 
-    from langchain.memory import ConversationBufferMemory
+    from langchain_classic.memory import ConversationBufferMemory
     from langchain_core.messages import HumanMessage, AIMessage
 
     memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)

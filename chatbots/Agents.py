@@ -6,7 +6,7 @@ to answer research and academic queries.
 """
 
 import streamlit as st
-from langchain.agents import initialize_agent, AgentType
+from langchain_classic.agents import initialize_agent, AgentType
 from langchain_community.utilities import ArxivAPIWrapper, WikipediaAPIWrapper
 from langchain_community.tools import (
     ArxivQueryRun,
